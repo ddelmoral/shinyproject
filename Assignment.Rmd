@@ -1,0 +1,106 @@
+---
+title: "Shiny Application and Reproducible Pitch"
+author: "David del Moral"
+date: "August 19, 2018"
+output: ioslides_presentation
+runtime: shiny
+---
+
+## Shiny Presentation {.smaller}
+
+This peer assessed assignment has two parts. First, you will create a Shiny application and deploy it on Rstudio's servers. Second, you will use Slidify or Rstudio Presenter to prepare a reproducible pitch presentation about your application.
+
+### Your Shiny Application {.smaller}
+
+Write a shiny application with associated supporting documentation. The documentation should be thought of as whatever a user will need to get started using your application.
+Deploy the application on Rstudio's shiny server
+Share the application link by pasting it into the provided text box
+Share your server.R and ui.R code on github
+
+## Mexican Government Acquisitions 2018 (MXP) {.smaller}
+
+###Web Application functionality
+
+The application shows the acquisitions performed by the Mexican goverment during 2018 through the procurement platform known as Compranet. 
+
+The source of the data has been obtained from datos.gob.mx, the open data site of the Mexican Goverment.  
+
+The application allows to select the cost range of contracts though slides controls. Once selected the cost range, the data frame is filtered and a plot is drawn dinamicaly, showing in a chart the different sort of contracts awarded by the Mexican goverment through the Compranet acquisitions platform.
+
+
+
+## User Interface Code {.smaller}
+
+```{r user interface, eval=FALSE}
+
+# ui.R
+library(shiny)
+
+ui <- fluidPage(
+
+    titlePanel("Mexican Government Acquisitions 2018 (MXP)"),
+    
+    sliderInput("range", "Range:",
+          min = 1, max = 1000000000,
+          value = c(1000000,500000000)),
+    
+    plotOutput("gplot")
+  )
+
+```
+
+
+## Server Side Code {.smaller}
+```{r server code, eval=FALSE}
+
+# server.R
+library(shiny)
+library(ggplot2)
+library(dplyr)
+
+df<- read.csv(file="Contratos2018ANSI.csv", header=TRUE, sep=",")
+
+dfMXP <- subset(df, df$MONEDA == "MXN")
+
+server <- function(input, output) {
+  
+  output$gplot <- renderPlot({
+    filtered <-
+      dfMXP %>%
+      filter(IMPORTE_CONTRATO >= input$range[1],
+             IMPORTE_CONTRATO <= input$range[2]
+            )
+      ggplot(filtered, aes(TIPO_CONTRATACION, IMPORTE_CONTRATO)) + 
+      geom_point(aes(col=TIPO_PROCEDIMIENTO)) +
+      xlab("Contract Type") +
+      ylab("Procurement Procedur")
+      })
+}
+
+```
+
+## Application Published in shinyapps.io {.smaller}
+
+
+The app is avalilable at: 
+
+https://ddelmoral.shinyapps.io/ShinyProject/ 
+
+The code can be obtained from:
+
+The source code for ui.R and server.R files are available on the GitHub repo: https://github.com/ddelmoral/shinyproject
+
+
+
+## Compranet Data Sample {.smaller}
+
+```{r data summary }
+
+df<- read.csv(file="Contratos2018ANSI.csv", header=TRUE, sep=",")
+dfMXP <- subset(df, df$MONEDA == "MXN")
+summary(df$TIPO_CONTRATACION)
+summary(df$IMPORTE_CONTRATO)
+summary(df$TIPO_PROCEDIMIENTO)
+```
+
+
