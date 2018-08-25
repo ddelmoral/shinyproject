@@ -4,30 +4,41 @@ author: "David del Moral"
 date: "August 19, 2018"
 output: ioslides_presentation
 runtime: shiny
+resource_files:
+- server.R
+- ui.R
 ---
 
 ## Shiny Presentation {.smaller}
 
-This peer assessed assignment has two parts. First, you will create a Shiny application and deploy it on Rstudio's servers. Second, you will use Slidify or Rstudio Presenter to prepare a reproducible pitch presentation about your application.
+This peer assessed assignment has two parts:
 
-### Your Shiny Application {.smaller}
+1. Create a Shiny application and deploy it on Rstudio's servers. 
 
-Write a shiny application with associated supporting documentation. The documentation should be thought of as whatever a user will need to get started using your application.
-Deploy the application on Rstudio's shiny server
-Share the application link by pasting it into the provided text box
-Share your server.R and ui.R code on github
+2. Use Slidify or Rstudio Presenter to prepare a reproducible pitch presentation about your application.
+
+
+## Your Shiny Application {.smaller}
+
+* Write a shiny application with associated supporting documentation. 
+* The documentation should be thought of as whatever a user will need to get started using your application.
+* Deploy the application on Rstudio's shiny server
+* Share the application link by pasting it into the provided text box
+* Share your server.R and ui.R code on github
 
 ## Mexican Government Acquisitions 2018 (MXP) {.smaller}
 
 ###Web Application functionality
 
-The application shows the acquisitions performed by the Mexican goverment during 2018 through the procurement platform known as Compranet. 
+The application shows the acquisitions performed by the Mexican goverment during 2018 through the procurement platform known as Compranet (https://compranet.funcionpublica.gob.mx/web/login.html). 
 
-The source of the data has been obtained from datos.gob.mx, the open data site of the Mexican Goverment.  
+The source of the data has been obtained from https://datos.gob.mx/, the open data site of the Mexican Goverment.  
 
-The application allows to select the cost range of contracts though slides controls. Once selected the cost range, the data frame is filtered and a plot is drawn dinamicaly, showing in a chart the different sort of contracts awarded by the Mexican goverment through the Compranet acquisitions platform.
+The application allows to select the amount range of the contracts awarded during 2018 though slides controls. Once selected the cost range, the data frame is filtered and a plot is updated dynamically, showing a chart with the different sort of contracts awarded through the Compranet acquisitions platform.  The size of the point corresponds to the amount of the contract awarded.
 
+The application gives an overview of where audits could be potentially focused depending on the amounts and type of acquisition procedure applied. 
 
+Data labels and categories have been translated to English for better understanding.
 
 ## User Interface Code {.smaller}
 
@@ -38,9 +49,9 @@ library(shiny)
 
 ui <- fluidPage(
 
-    titlePanel("Mexican Government Acquisitions 2018 (MXP)"),
+    titlePanel("Mexican Government Acquisitions 2018 in lMillions of Mexican Pesos(MXP)"),
     
-    sliderInput("range", "Range:",
+    sliderInput("range", "Contract Amount Range:",
           min = 1, max = 1000000000,
           value = c(1000000,500000000)),
     
@@ -58,22 +69,22 @@ library(shiny)
 library(ggplot2)
 library(dplyr)
 
-df<- read.csv(file="Contratos2018ANSI.csv", header=TRUE, sep=",")
+df<- read.csv(file="Compranet_2018_UTF8.csv", header=TRUE, sep="|")
 
-dfMXP <- subset(df, df$MONEDA == "MXN")
+dfMXP <- subset(df, df$CURRENCY == "MXP")
 
 server <- function(input, output) {
   
   output$gplot <- renderPlot({
     filtered <-
       dfMXP %>%
-      filter(IMPORTE_CONTRATO >= input$range[1],
-             IMPORTE_CONTRATO <= input$range[2]
+      filter(CONTRACT_AMOUNT >= input$range[1],
+             CONTRACT_AMOUNT <= input$range[2]
             )
-      ggplot(filtered, aes(TIPO_CONTRATACION, IMPORTE_CONTRATO)) + 
-      geom_point(aes(col=TIPO_PROCEDIMIENTO)) +
+      ggplot(filtered, aes(CONTRACT_TYPE, CONTRACT_AMOUNT)) + 
+      geom_point(aes(col=PROCEDURE_TYPE)) +
       xlab("Contract Type") +
-      ylab("Procurement Procedur")
+      ylab("Procurement Procedure")
       })
 }
 
@@ -84,23 +95,24 @@ server <- function(input, output) {
 
 The app is avalilable at: 
 
-https://ddelmoral.shinyapps.io/ShinyProject/ 
+https://daviddelmoral.shinyapps.io/shinyproject/
 
 The code can be obtained from:
 
-The source code for ui.R and server.R files are available on the GitHub repo: https://github.com/ddelmoral/shinyproject
+The source code for ui.R and server.R files are available on the GitHub repo: 
+
+https://github.com/ddelmoral/shinyproject
 
 
 
 ## Compranet Data Sample {.smaller}
 
-```{r data summary }
-
-df<- read.csv(file="Contratos2018ANSI.csv", header=TRUE, sep=",")
-dfMXP <- subset(df, df$MONEDA == "MXN")
-summary(df$TIPO_CONTRATACION)
-summary(df$IMPORTE_CONTRATO)
-summary(df$TIPO_PROCEDIMIENTO)
+```{r data summary 1}
+df<- read.csv(file="Compranet_2018_UTF8.csv", header=TRUE, sep="|")
+dfMXP <- subset(df, df$CURRENCY == "MXP")
+summary(df$CONTRACT_TYPE)
+summary(df$CONTRACT_AMOUNT)
+summary(df$PROCEDURE_TYPE)
 ```
 
 
