@@ -1,8 +1,9 @@
 # shinyproject
 Peer-graded Assignment: Course Project: Shiny Application and Reproducible Pitch
-## Mexican Government Acquisitions 2018 (MXP)
 
-###Web Application functionality
+<Bold>Mexican Government Acquisitions 2018</Bold>
+
+<Bold>Web Application functionality</Bold>
 
 The application shows the acquisitions performed by the Mexican goverment during 2018 through the procurement platform known as Compranet (https://compranet.funcionpublica.gob.mx/web/login.html). 
 
